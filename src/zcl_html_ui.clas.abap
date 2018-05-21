@@ -44,11 +44,11 @@ class zcl_html_ui definition public create public inheriting from cl_gui_html_vi
       end of t_keyvalue,
       t_keyvalue_table type sorted table of t_keyvalue with unique key key,
 
-      t_translation    type t_keyvalue,
-      t_translation_t  type t_keyvalue_table,
+      t_translation    type                 t_keyvalue,
+      t_translation_t  type                 t_keyvalue_table,
 
-      t_query          type t_keyvalue,
-      t_query_t        type t_keyvalue_table.
+      t_query          type                 t_keyvalue,
+      t_query_t        type                 t_keyvalue_table.
 
     data:
       i_template type string,
@@ -85,7 +85,7 @@ class zcl_html_ui definition public create public inheriting from cl_gui_html_vi
 
   private section.
     methods on_sapevent for event sapevent of cl_gui_html_viewer
-    importing action frame getdata postdata sender query_table.
+      importing action frame getdata postdata sender query_table.
 
     methods glue_query importing query type cnht_query_table returning value(ret) type t_query_t.
 endclass.
@@ -118,7 +118,10 @@ class zcl_html_ui implementation.
 
   method construct.
     set handler on_sapevent for me.
-    set_registered_events( events = value #( ( eventid = m_id_sapevent appl_event = abap_true ) ) ).
+
+    data lt_events type cntl_simple_events.
+    append value #( eventid = m_id_sapevent appl_event = abap_true ) to lt_events.
+    set_registered_events( events = lt_events ).
 
     preload_mime( ).
 
@@ -351,7 +354,7 @@ class zcl_html_ui implementation.
       end of t_lib_entry.
 
     data:
-      l_dummy_url type text80,
+      l_dummy_url type                   text80,
       lt_files    type standard table of t_lib_entry.
 
     select objid value from wwwparams into table lt_files
@@ -409,4 +412,3 @@ class zcl_html_ui implementation.
   endmethod.
 
 endclass.
-
