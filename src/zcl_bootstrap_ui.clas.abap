@@ -8,6 +8,6 @@ endclass.
 class zcl_bootstrap_ui implementation.
   method preload_mime.
     super->preload_mime( ).
-    load_binary_data( 'ZBP4.1.1_%' ).
+    load_binary_data( 'ZBP4_1_1_%' ).
   endmethod.
 endclass.

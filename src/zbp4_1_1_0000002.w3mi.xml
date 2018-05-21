@@ -2,26 +2,26 @@
 <abapGit version="v1.0.0" serializer="LCL_OBJECT_W3MI" serializer_version="v2.0.0">
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
-   <NAME>ZBP4.1.1_0000001</NAME>
-   <TEXT>bootstrap.min.css</TEXT>
+   <NAME>ZBP4_1_1_0000002</NAME>
+   <TEXT>bootstrap.min.js</TEXT>
    <PARAMS>
     <WWWPARAMS>
      <RELID>MI</RELID>
-     <OBJID>ZBP4.1.1_0000001</OBJID>
+     <OBJID>ZBP4_1_1_0000002</OBJID>
      <NAME>fileextension</NAME>
-     <VALUE>.css</VALUE>
+     <VALUE>.js</VALUE>
     </WWWPARAMS>
     <WWWPARAMS>
      <RELID>MI</RELID>
-     <OBJID>ZBP4.1.1_0000001</OBJID>
+     <OBJID>ZBP4_1_1_0000002</OBJID>
      <NAME>filename</NAME>
-     <VALUE>bootstrap.min.css</VALUE>
+     <VALUE>bootstrap.min.js</VALUE>
     </WWWPARAMS>
     <WWWPARAMS>
      <RELID>MI</RELID>
-     <OBJID>ZBP4.1.1_0000001</OBJID>
+     <OBJID>ZBP4_1_1_0000002</OBJID>
      <NAME>mimetype</NAME>
-     <VALUE>text/css</VALUE>
+     <VALUE>application/javascript</VALUE>
     </WWWPARAMS>
    </PARAMS>
   </asx:values>
