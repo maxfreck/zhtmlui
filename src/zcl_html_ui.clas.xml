@@ -4,10 +4,8 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_HTML_UI</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>UI based on cl_gui_html_viewer</DESCRIPT>
-    <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
