@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!--
+		Required meta tags:
+		– Force IE to render page with the most recent version's standards.
+		– Use UTF-8 character set
+		– set initial viewport.
+	-->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+	<title>CL_GUI_HTML_VIEWER user interface</title>
+
+	<!-- Botstrap files -->
+	<link rel="stylesheet" href="bootstrap.min.css">
+
+	<!-- Other files -->
+	<link rel="stylesheet" href="highlight.min.css">
+<style>
+.PageHeader {
+	background: #005AA7;
+	background: linear-gradient(45deg, #FFFDE4, #005AA7);
+	padding: 10em 0 4em 0;
+	margin-bottom: 4em;
+}
+</style>
+
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item">
+					<a class="nav-link" href="SAPEVENT:pai?exit">Exit</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="javascript:console.toggle();">Toggle console</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+
+	<main role="main">
+
+		<!-- Main jumbotron for a primary marketing message or call to action -->
+		<div class="PageHeader">
+			<div class="container">
+				<h1 class="display-5">HTML user interface in action</h1>
+				<p id="useragent"></p>
+			</div>
+		</div>
+
+		<div class="container">
+			<h2>About</h2>
+			<p>The ZHTMLUI framework helps developers create an HTML-based user interface in classic SAP transactions.</p>
+
+
+			<hr>
+			<h2>Getting started</h2>
+			<p>The frontend source code (html, css, javascript) must be stored as Binary data for WebRFC applications (transaction <code>SMW0</code>).</p>
+
+			<h4>ABAP code</h4>
+			<p>Because of the nature of object constructors in ABAP programming language, you have to call 2 methods for initialization:</p>
+			<pre><code class="abap">data(html_control) = new zcl_html_ui(
+  parent = cl_gui_custom_container=>screen0 "Parent GUI container
+  template = 'ZHELLOWORLD'                  "Index template name from SMW0 Binary data
+).
+html_control->construct( ). "Actual object constructor</code></pre>
+			<p>Yes, it's a bit ugly, but it's ABAP.</p>
+
+			<h4>HTML setup</h4>
+			<p>You have to make sure you link the files properly in your page.</p>
+
+			<pre><code class="ororo">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;!-- Force IE to use latest standards --&gt;
+    &lt;meta http-equiv="X-UA-Compatible" content="IE=edge"&gt;
+    &lt;meta charset="utf-8"&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+
+  &lt;!-- JavaScript at end of body --&gt;
+  &lt;script src="sapguilogger.js"&gt;&lt;/script&gt;
+  &lt;script src="sapgui.js"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+<p>Now you can enjoy the benefits of the javascript console and interact with the backend ABAP code.</p>
+
+
+			<a href="#" class="btn btn-primary" id="ping">API ping</a>
+			<a href="SAPEVENT:url?https://github.com/maxfreck/zhtmlui" class="btn btn-primary">GitHub</a>
+			<div id="log"></div>
+
+			<hr>
+		</div>
+
+	</main>
+
+	<footer class="container">
+		<p>&copy; Maxim Freck 2018–2019</p>
+	</footer>
+
+	<form method="POST" action="SAPEVENT:form-post-event" id="form-post-event" style="visibility:hidden"></form>
+	<form method="POST" action="SAPEVENT:api-request" id="form-api-request" style="visibility:hidden"></form>
+
+<!-- SAP GUI integration -->
+<script src="sapguilogger.js"></script>
+<script src="sapgui.js"></script>
+<!-- Botstrap files -->
+<script src="jquery.slim.min.js"></script>
+<script src="popper.min.js"></script>
+<script src="bootstrap.min.js"></script>
+<!-- Other files -->
+<script src="highlight.min.js"></script>
+
+<script>
+hljs.initHighlightingOnLoad();
+
+document.addEventListener("DOMContentLoaded", function(event) {try{
+	document.getElementById("useragent").innerHTML = navigator.userAgent;
+	document.getElementById("ping").addEventListener("click", function (e) {
+		e.preventDefault();
+		var pingid = Date.now();
+		console.log("ping", pingid);
+		sapgui.apiCall("ping", {
+			params: {
+				pong: pingid
+			},
+			success: function(param) {
+				console.success(param)
+			},
+			fail: function () {
+				console.error("ping failed");
+			}
+		});
+	});
+} catch (e) {console.error(e)}})
+</script>
+</body>
+</html>
