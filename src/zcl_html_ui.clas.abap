@@ -1,140 +1,142 @@
-class zcl_html_ui definition public create public inheriting from cl_gui_html_viewer.
-  public section.
+CLASS zcl_html_ui DEFINITION PUBLIC CREATE PUBLIC INHERITING FROM cl_gui_html_viewer.
+  PUBLIC SECTION.
 
-    constants:
-      c_loglevel_notice    type int1 value 1,
-      c_loglevel_warning   type int1 value 2,
-      c_loglevel_error     type int1 value 3,
-      c_loglevel_critical  type int1 value 4,
-      c_loglevel_alert     type int1 value 5,
-      c_loglevel_emergency type int1 value 6.
+    CONSTANTS:
+      BEGIN OF cs_loglevel,
+        notice    TYPE int1 VALUE 1,
+        warning   TYPE int1 VALUE 2,
+        error     TYPE int1 VALUE 3,
+        critical  TYPE int1 VALUE 4,
+        alert     TYPE int1 VALUE 5,
+        emergency TYPE int1 VALUE 6,
+      END OF cs_loglevel.
 
-    types:
-      begin of t_log_line,
-        stamp type timestampl,
-        level type int1,
-        line  type string,
-      end of t_log_line,
-      t_log_table type standard table of t_log_line with empty key.
+    TYPES:
+      BEGIN OF t_log_line,
+        stamp TYPE timestampl,
+        level TYPE int1,
+        line  TYPE string,
+      END OF t_log_line,
+      t_log_table TYPE STANDARD TABLE OF t_log_line WITH EMPTY KEY.
 
-    methods constructor
-      importing
-        value(parent) type ref to cl_gui_container
-        template      type string
-      exceptions
+    METHODS constructor
+      IMPORTING
+        VALUE(parent) TYPE REF TO cl_gui_container
+        template      TYPE string
+      EXCEPTIONS
         cntl_error
         cntl_install_error
         dp_install_error
         dp_error.
 
-    methods construct.
+    METHODS construct.
 
-    methods show.
+    METHODS show.
 
-    methods frontent_log_show.
-    methods frontend_log_hide.
+    METHODS frontent_log_show.
+    METHODS frontend_log_hide.
 
-    events on_pai_call exporting value(ucomm) type syst_ucomm.
+    EVENTS on_pai_call EXPORTING VALUE(ucomm) TYPE syst_ucomm.
 
-  protected section.
-    types:
-      begin of t_keyvalue,
-        key   type text80,
-        value type string,
-      end of t_keyvalue,
-      t_keyvalue_table type sorted table of t_keyvalue with unique key key,
+  PROTECTED SECTION.
+    TYPES:
+      BEGIN OF t_keyvalue,
+        key   TYPE text80,
+        value TYPE string,
+      END OF t_keyvalue,
+      t_keyvalue_table TYPE SORTED TABLE OF t_keyvalue WITH UNIQUE KEY key,
 
-      t_translation    type                 t_keyvalue,
-      t_translation_t  type                 t_keyvalue_table,
+      t_translation    TYPE                 t_keyvalue,
+      t_translation_t  TYPE                 t_keyvalue_table,
 
-      t_query          type                 t_keyvalue,
-      t_query_t        type                 t_keyvalue_table.
+      t_query          TYPE                 t_keyvalue,
+      t_query_t        TYPE                 t_keyvalue_table.
 
-    data:
-      i_template type string,
-      i_log      type t_log_table,
-      i_url      type text80.
+    DATA:
+      i_template TYPE string,
+      i_log      TYPE t_log_table,
+      i_url      TYPE text80.
 
-    methods preload_mime.
-    methods preload_data importing id type text80 url type text80.
-    methods get_translations returning value(ret) type t_translation_t.
-    methods translations_to_json importing translations type t_translation_t returning value(ret) type string.
+    METHODS preload_mime.
+    METHODS preload_data IMPORTING id TYPE text80 url TYPE text80.
+    METHODS get_translations RETURNING VALUE(ret) TYPE t_translation_t.
+    METHODS translations_to_json IMPORTING translations TYPE t_translation_t RETURNING VALUE(ret) TYPE string.
 
-    methods handle_sapevent importing action type string query type t_query_t.
-    methods show_message importing type type string text type string display_like type string.
+    METHODS handle_sapevent IMPORTING action TYPE string query TYPE t_query_t.
+    METHODS show_message IMPORTING type TYPE string text TYPE string display_like TYPE string.
 
-    methods dispatch_api_request importing command type string id type i params type t_query_t.
-    methods api_reply importing id type i reply type string.
+    METHODS dispatch_api_request IMPORTING command TYPE string id TYPE i params TYPE t_query_t.
+    METHODS api_reply IMPORTING id TYPE i reply TYPE string.
 
-    methods map_string importing name type string str type string mime type string default 'text/plain'.
+    METHODS map_string IMPORTING name TYPE string str TYPE string mime TYPE string DEFAULT 'text/plain'.
 
-    methods run_frontend importing script type string.
+    METHODS run_frontend IMPORTING script TYPE string.
 
-    methods load_binary_data importing like type string.
+    METHODS load_binary_data IMPORTING like TYPE string.
 
     " It's a dummy logging system.
     " To clean the code, we must extract logging into a separate class.
-    methods:
-      log_write importing str type string level type int1 default 0,
-      log_notice    importing str type string,
-      log_warning   importing str type string,
-      log_error     importing str type string,
-      log_critical  importing str type string,
-      log_alert     importing str type string,
-      log_emergency importing str type string.
+    METHODS:
+      log_write IMPORTING str TYPE string level TYPE int1 DEFAULT 0,
+      log_notice    IMPORTING str TYPE string,
+      log_warning   IMPORTING str TYPE string,
+      log_error     IMPORTING str TYPE string,
+      log_critical  IMPORTING str TYPE string,
+      log_alert     IMPORTING str TYPE string,
+      log_emergency IMPORTING str TYPE string.
 
-  private section.
-    methods on_sapevent for event sapevent of cl_gui_html_viewer
-      importing action frame getdata postdata sender query_table.
+  PRIVATE SECTION.
+    METHODS on_sapevent FOR EVENT sapevent OF cl_gui_html_viewer
+      IMPORTING action frame getdata postdata sender query_table.
 
-    methods glue_query importing query type cnht_query_table returning value(ret) type t_query_t.
-endclass.
+    METHODS glue_query IMPORTING query TYPE cnht_query_table RETURNING VALUE(ret) TYPE t_query_t.
+ENDCLASS.
 
 
-class zcl_html_ui implementation.
-  method constructor.
-    call method super->constructor
-      exporting
+CLASS zcl_html_ui IMPLEMENTATION.
+  METHOD constructor.
+    CALL METHOD super->constructor
+      EXPORTING
         parent             = parent
         uiflag             = ( uiflag_noiemenu + uiflag_no3dborder )
-      exceptions
+      EXCEPTIONS
         cntl_error         = 1
         cntl_install_error = 2
         dp_install_error   = 3
         dp_error           = 4.
-    case sy-subrc.
-      when 1.
-        raise cntl_error.
-      when 2.
-        raise cntl_install_error.
-      when 3.
-        raise dp_install_error.
-      when 4.
-        raise dp_error.
-    endcase.
+    CASE sy-subrc.
+      WHEN 1.
+        RAISE cntl_error.
+      WHEN 2.
+        RAISE cntl_install_error.
+      WHEN 3.
+        RAISE dp_install_error.
+      WHEN 4.
+        RAISE dp_error.
+    ENDCASE.
 
     i_template = template.
-  endmethod.
+  ENDMETHOD.
 
-  method construct.
-    set handler on_sapevent for me.
+  METHOD construct.
+    SET HANDLER on_sapevent FOR me.
 
-    data lt_events type cntl_simple_events.
-    append value #( eventid = m_id_sapevent appl_event = abap_true ) to lt_events.
+    DATA lt_events TYPE cntl_simple_events.
+    APPEND VALUE #( eventid = m_id_sapevent appl_event = abap_true ) TO lt_events.
     set_registered_events( events = lt_events ).
 
     preload_mime( ).
 
     load_mime_object(
-      exporting
-        object_id = conv text80( i_template )
+      EXPORTING
+        object_id = CONV text80( i_template )
         object_url = 'index.html'
-      importing
+      IMPORTING
         assigned_url = i_url
     ).
-  endmethod.
+  ENDMETHOD.
 
-  method preload_mime.
+  METHOD preload_mime.
     preload_data( id = 'ZSAPGUILOGGER' url = 'sapguilogger.js' ).
     preload_data( id = 'ZSAPGUI' url = 'sapgui.js' ).
 
@@ -143,272 +145,272 @@ class zcl_html_ui implementation.
       str = translations_to_json( get_translations( ) )
       mime = 'application/json'
     ).
-  endmethod.
+  ENDMETHOD.
 
-  method preload_data.
-    data l_dummy_url type text80.
+  METHOD preload_data.
+    DATA l_dummy_url TYPE text80.
 
-    call method load_mime_object
-      exporting
+    CALL METHOD load_mime_object
+      EXPORTING
         object_id            = id
         object_url           = url
-      importing
+      IMPORTING
         assigned_url         = l_dummy_url
-      exceptions
+      EXCEPTIONS
         object_not_found     = 1
         dp_invalid_parameter = 2
         dp_error_general     = 3
-        others               = 4.
+        OTHERS               = 4.
 
-    if sy-subrc <> 0.
-      raise exception type zcx_html_ui exporting text = |{ id } load failed with { sy-subrc }|.
-    endif.
-  endmethod.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = |{ id } load failed with { sy-subrc }|.
+    ENDIF.
+  ENDMETHOD.
 
-  method get_translations.
-    data l_texts type standard table of textpool.
+  METHOD get_translations.
+    DATA l_texts TYPE STANDARD TABLE OF textpool.
 
-    read textpool sy-cprog into l_texts language sy-langu.
+    READ TEXTPOOL sy-cprog INTO l_texts LANGUAGE sy-langu.
 
-    loop at l_texts assigning field-symbol(<text>) where id = 'I'.
-      insert value #( key = <text>-key value = <text>-entry ) into table ret.
-    endloop.
-  endmethod.
+    LOOP AT l_texts ASSIGNING FIELD-SYMBOL(<text>) WHERE id = 'I'.
+      INSERT VALUE #( key = <text>-key value = <text>-entry ) INTO TABLE ret.
+    ENDLOOP.
+  ENDMETHOD.
 
-  method translations_to_json.
-    if translations is initial.
+  METHOD translations_to_json.
+    IF translations IS INITIAL.
       ret = '{}'.
-      return.
-    endif.
+      RETURN.
+    ENDIF.
 
-    loop at translations assigning field-symbol(<translation>).
+    LOOP AT translations ASSIGNING FIELD-SYMBOL(<translation>).
       ret = |{ ret }"{ <translation>-key }": "{ <translation>-value }",\n|.
-    endloop.
+    ENDLOOP.
 
-    data(len) = strlen( ret ) - 2.
+    DATA(len) = strlen( ret ) - 2.
     ret = |\{\n{ ret(len) }\n\}|.
-  endmethod.
+  ENDMETHOD.
 
-  method show.
-    show_url( exporting url = i_url ).
-  endmethod.
+  METHOD show.
+    show_url( EXPORTING url = i_url ).
+  ENDMETHOD.
 
-  method frontent_log_show.
+  METHOD frontent_log_show.
     run_frontend( 'console.show();' ).
-  endmethod.
+  ENDMETHOD.
 
-  method frontend_log_hide.
+  METHOD frontend_log_hide.
     run_frontend( 'console.hide();' ).
-  endmethod.
+  ENDMETHOD.
 
-  method on_sapevent.
-    if lines( query_table ) = 0.
-      handle_sapevent( action = conv #( action ) query = value #( ( key = 'getdata' value = getdata ) ) ).
-    else.
-      handle_sapevent( action = conv #( action ) query = glue_query( query_table ) ).
-    endif.
-  endmethod.
+  METHOD on_sapevent.
+    IF lines( query_table ) = 0.
+      handle_sapevent( action = CONV #( action ) query = VALUE #( ( key = 'getdata' value = getdata ) ) ).
+    ELSE.
+      handle_sapevent( action = CONV #( action ) query = glue_query( query_table ) ).
+    ENDIF.
+  ENDMETHOD.
 
-  method glue_query.
-    loop at query assigning field-symbol(<query>).
-      split <query>-name at '_%%' into table data(q).
-      if line_exists( ret[ key = q[ 1 ] ] ).
+  METHOD glue_query.
+    LOOP AT query ASSIGNING FIELD-SYMBOL(<query>).
+      SPLIT <query>-name AT '_%%' INTO TABLE DATA(q).
+      IF line_exists( ret[ key = q[ 1 ] ] ).
         ret[ key = q[ 1 ] ]-value = |{ ret[ key = q[ 1 ] ]-value }{ <query>-value }|.
-      else.
-        insert value #( key = q[ 1 ] value = <query>-value ) into table ret.
-      endif.
-    endloop.
-  endmethod.
+      ELSE.
+        INSERT VALUE #( key = q[ 1 ] value = <query>-value ) INTO TABLE ret.
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
 
-  method handle_sapevent.
-    data getdata type string value ''.
-    if line_exists( query[ key = 'getdata' ] ).
+  METHOD handle_sapevent.
+    DATA getdata TYPE string VALUE ''.
+    IF line_exists( query[ key = 'getdata' ] ).
       getdata = query[ key = 'getdata' ]-value.
-    endif.
+    ENDIF.
 
-    case action.
-      when 'message'.
-        data l_disp type string value ''.
-        if not line_exists( query[ key = 'type' ] ) or not line_exists( query[ key = 'text' ] ).
-          return.
-        endif.
-        if line_exists( query[ key = 'display-like' ] ).
+    CASE action.
+      WHEN 'message'.
+        DATA l_disp TYPE string VALUE ''.
+        IF NOT line_exists( query[ key = 'type' ] ) OR NOT line_exists( query[ key = 'text' ] ).
+          RETURN.
+        ENDIF.
+        IF line_exists( query[ key = 'display-like' ] ).
           l_disp = query[ key = 'display-like' ]-value.
-        endif.
+        ENDIF.
         show_message(
-          text = conv #( query[ key = 'text' ]-value )
-          type = conv #( query[ key = 'type' ]-value )
+          text = CONV #( query[ key = 'text' ]-value )
+          type = CONV #( query[ key = 'type' ]-value )
           display_like = l_disp
         ).
-      when 'api-request'.
-        if not line_exists( query[ key = 'command' ] ) or not line_exists( query[ key = 'id' ] ).
-          return.
-        endif.
+      WHEN 'api-request'.
+        IF NOT line_exists( query[ key = 'command' ] ) OR NOT line_exists( query[ key = 'id' ] ).
+          RETURN.
+        ENDIF.
         dispatch_api_request(
-          command = conv #( query[ key = 'command' ]-value )
-          id = conv #( query[ key = 'id' ]-value )
+          command = CONV #( query[ key = 'command' ]-value )
+          id = CONV #( query[ key = 'id' ]-value )
           params = query
         ).
-      when 'pai'.
-        translate getdata to upper case.
-        raise event on_pai_call exporting ucomm = conv #( getdata ).
-      when 'exception'.
-        raise exception type zcx_html_ui exporting text = getdata.
-        return.
-      when 'log'. "this is not implemented yet
-        if not line_exists( query[ key = 'level' ] ) or not line_exists( query[ key = 'text' ] ).
-          return.
-        endif.
-        log_write( str = query[ key = 'text' ]-value level = conv #( query[ key = 'level' ]-value ) ).
-        return.
-      when 'url'.
-        call function 'CALL_BROWSER' exporting url = conv text255( getdata ).
-      when others.
+      WHEN 'pai'.
+        TRANSLATE getdata TO UPPER CASE.
+        RAISE EVENT on_pai_call EXPORTING ucomm = CONV #( getdata ).
+      WHEN 'exception'.
+        RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = getdata.
+        RETURN.
+      WHEN 'log'. "this is not implemented yet
+        IF NOT line_exists( query[ key = 'level' ] ) OR NOT line_exists( query[ key = 'text' ] ).
+          RETURN.
+        ENDIF.
+        log_write( str = query[ key = 'text' ]-value level = CONV #( query[ key = 'level' ]-value ) ).
+        RETURN.
+      WHEN 'url'.
+        CALL FUNCTION 'CALL_BROWSER' EXPORTING url = CONV text255( getdata ).
+      WHEN OTHERS.
         log_warning( |unhandled action: { action }: { getdata }| ).
-    endcase.
-  endmethod.
+    ENDCASE.
+  ENDMETHOD.
 
-  method show_message.
-    if display_like is initial.
-      message text type type.
-    else.
-      message text type type display like display_like.
-    endif.
-  endmethod.
+  METHOD show_message.
+    IF display_like IS INITIAL.
+      MESSAGE text TYPE type.
+    ELSE.
+      MESSAGE text TYPE type DISPLAY LIKE display_like.
+    ENDIF.
+  ENDMETHOD.
 
-  method dispatch_api_request.
-    if command = 'ping'.
-      if line_exists( params[ key = 'pong' ] ).
+  METHOD dispatch_api_request.
+    IF command = 'ping'.
+      IF line_exists( params[ key = 'pong' ] ).
         api_reply( id = id reply = |pong { params[ key = 'pong' ]-value }| ).
-        return.
-      endif.
+        RETURN.
+      ENDIF.
       api_reply( id = id reply = 'pong' ).
-    endif.
-  endmethod.
+    ENDIF.
+  ENDMETHOD.
 
-  method api_reply.
-    data(l_reply) = reply.
-    replace all occurrences of |'| in l_reply with |\\'|.
+  METHOD api_reply.
+    DATA(l_reply) = reply.
+    REPLACE ALL OCCURRENCES OF |'| IN l_reply WITH |\\'|.
     run_frontend( |sapgui.apiReceive({ id }, '{ l_reply }');| ).
-  endmethod.
+  ENDMETHOD.
 
-  method map_string.
-    data:
-      lt_solix type solix_tab,
-      l_size   type so_obj_len,
-      l_url    type text1024.
+  METHOD map_string.
+    DATA:
+      lt_solix TYPE solix_tab,
+      l_size   TYPE so_obj_len,
+      l_url    TYPE text1024.
 
-    split mime at '/' into table data(mime_tab).
-    if lines( mime_tab ) <> 2.
-      raise exception type zcx_html_ui exporting text = 'Invalid mime is specified'.
-    endif.
+    SPLIT mime AT '/' INTO TABLE DATA(mime_tab).
+    IF lines( mime_tab ) <> 2.
+      RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = 'Invalid mime is specified'.
+    ENDIF.
 
-    try.
+    TRY.
         cl_bcs_convert=>string_to_solix(
-          exporting
+          EXPORTING
             iv_string = str
-          importing
+          IMPORTING
             et_solix = lt_solix
             ev_size = l_size
         ).
-      catch cx_bcs into data(x).
-        raise exception type zcx_html_ui exporting text = x->get_text( ) previous = x.
-    endtry.
+      CATCH cx_bcs INTO DATA(x).
+        RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = x->get_text( ) previous = x.
+    ENDTRY.
 
-    call method load_data
-      exporting
-        url                    = conv text80( name )
-        type                   = conv text80( mime_tab[ 1 ] )
-        subtype                = conv text80( mime_tab[ 2 ] )
-        size                   = conv #( l_size )
-      importing
+    CALL METHOD load_data
+      EXPORTING
+        url                    = CONV text80( name )
+        type                   = CONV text80( mime_tab[ 1 ] )
+        subtype                = CONV text80( mime_tab[ 2 ] )
+        size                   = CONV #( l_size )
+      IMPORTING
         assigned_url           = l_url
-      changing
+      CHANGING
         data_table             = lt_solix
-      exceptions
+      EXCEPTIONS
         dp_invalid_parameter   = 1
         dp_error_general       = 2
         cntl_error             = 3
         html_syntax_notcorrect = 4
-        others                 = 2.
+        OTHERS                 = 2.
 
-    if sy-subrc <> 0.
-      raise exception type zcx_html_ui exporting text = |load_data failed with { sy-subrc }|.
-    endif.
-  endmethod.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = |load_data failed with { sy-subrc }|.
+    ENDIF.
+  ENDMETHOD.
 
-  method run_frontend.
+  METHOD run_frontend.
     set_script( cl_bcs_convert=>string_to_soli( script ) ).
-    execute_script( exceptions dp_error = 1 cntl_error = 2 ).
+    execute_script( EXCEPTIONS dp_error = 1 cntl_error = 2 ).
 
-    if sy-subrc <> 0.
-      raise exception type zcx_html_ui exporting text = |Failed to run frontend script with exit code { sy-subrc }|.
-    endif.
-  endmethod.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = |Failed to run frontend script with exit code { sy-subrc }|.
+    ENDIF.
+  ENDMETHOD.
 
-  method load_binary_data.
-    types:
-      begin of t_lib_entry,
-        objid type w3objid,
-        value type w3_qvalue,
-      end of t_lib_entry.
+  METHOD load_binary_data.
+    TYPES:
+      BEGIN OF t_lib_entry,
+        objid TYPE w3objid,
+        value TYPE w3_qvalue,
+      END OF t_lib_entry.
 
-    data:
-      l_dummy_url type                   text80,
-      lt_files    type standard table of t_lib_entry.
+    DATA:
+      l_dummy_url TYPE                   text80,
+      lt_files    TYPE STANDARD TABLE OF t_lib_entry.
 
-    select objid value from wwwparams into table lt_files
-     where relid = 'MI'
-       and objid like like
-       and name = 'filename'.
+    SELECT objid value FROM wwwparams INTO TABLE lt_files
+     WHERE relid = 'MI'
+       AND objid LIKE like
+       AND name = 'filename'.
 
-    loop at lt_files assigning field-symbol(<file>).
-      call method load_mime_object
-        exporting
+    LOOP AT lt_files ASSIGNING FIELD-SYMBOL(<file>).
+      CALL METHOD load_mime_object
+        EXPORTING
           object_id            = <file>-objid
           object_url           = <file>-value
-        importing
+        IMPORTING
           assigned_url         = l_dummy_url
-        exceptions
+        EXCEPTIONS
           object_not_found     = 1
           dp_invalid_parameter = 2
           dp_error_general     = 3
-          others               = 4.
+          OTHERS               = 4.
 
-      if sy-subrc <> 0.
-        raise exception type zcx_html_ui exporting text = |{ <file>-value } load failed with { sy-subrc }|.
-      endif.
-    endloop.
-  endmethod.
+      IF sy-subrc <> 0.
+        RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = |{ <file>-value } load failed with { sy-subrc }|.
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
 
-  method log_write.
-    data l_timestamp type timestampl.
-    get time field l_timestamp.
-    append value #( stamp = l_timestamp level = level line = str ) to i_log.
-  endmethod.
+  METHOD log_write.
+    DATA l_timestamp TYPE timestampl.
+    GET TIME FIELD l_timestamp.
+    APPEND VALUE #( stamp = l_timestamp level = level line = str ) TO i_log.
+  ENDMETHOD.
 
-  method log_notice.
-    log_write( str = str level = c_loglevel_notice ).
-  endmethod.
+  METHOD log_notice.
+    log_write( str = str level = cs_loglevel-notice ).
+  ENDMETHOD.
 
-  method log_warning.
-    log_write( str = str level = c_loglevel_warning ).
-  endmethod.
+  METHOD log_warning.
+    log_write( str = str level = cs_loglevel-warning ).
+  ENDMETHOD.
 
-  method log_error.
-    log_write( str = str level = c_loglevel_error ).
-  endmethod.
+  METHOD log_error.
+    log_write( str = str level = cs_loglevel-error ).
+  ENDMETHOD.
 
-  method log_critical.
-    log_write( str = str level = c_loglevel_critical ).
-  endmethod.
+  METHOD log_critical.
+    log_write( str = str level = cs_loglevel-critical ).
+  ENDMETHOD.
 
-  method log_alert.
-    log_write( str = str level = c_loglevel_alert ).
-  endmethod.
+  METHOD log_alert.
+    log_write( str = str level = cs_loglevel-alert ).
+  ENDMETHOD.
 
-  method log_emergency.
-    log_write( str = str level = c_loglevel_emergency ).
-  endmethod.
+  METHOD log_emergency.
+    log_write( str = str level = cs_loglevel-emergency ).
+  ENDMETHOD.
 
-endclass.
+ENDCLASS.

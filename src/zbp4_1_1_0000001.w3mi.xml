@@ -6,20 +6,14 @@
    <TEXT>bootstrap.min.css</TEXT>
    <PARAMS>
     <WWWPARAMS>
-     <RELID>MI</RELID>
-     <OBJID>ZBP4_1_1_0000001</OBJID>
      <NAME>fileextension</NAME>
      <VALUE>.css</VALUE>
     </WWWPARAMS>
     <WWWPARAMS>
-     <RELID>MI</RELID>
-     <OBJID>ZBP4_1_1_0000001</OBJID>
      <NAME>filename</NAME>
      <VALUE>bootstrap.min.css</VALUE>
     </WWWPARAMS>
     <WWWPARAMS>
-     <RELID>MI</RELID>
-     <OBJID>ZBP4_1_1_0000001</OBJID>
      <NAME>mimetype</NAME>
      <VALUE>text/css</VALUE>
     </WWWPARAMS>

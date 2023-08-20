@@ -6,20 +6,14 @@
    <TEXT>SAP GUI logger</TEXT>
    <PARAMS>
     <WWWPARAMS>
-     <RELID>MI</RELID>
-     <OBJID>ZSAPGUILOGGER</OBJID>
      <NAME>fileextension</NAME>
      <VALUE>.js</VALUE>
     </WWWPARAMS>
     <WWWPARAMS>
-     <RELID>MI</RELID>
-     <OBJID>ZSAPGUILOGGER</OBJID>
      <NAME>filename</NAME>
      <VALUE>sapguilogger.js</VALUE>
     </WWWPARAMS>
     <WWWPARAMS>
-     <RELID>MI</RELID>
-     <OBJID>ZSAPGUILOGGER</OBJID>
      <NAME>mimetype</NAME>
      <VALUE>application/javascript</VALUE>
     </WWWPARAMS>

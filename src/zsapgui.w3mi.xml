@@ -6,20 +6,14 @@
    <TEXT>SAPGUI specific functions</TEXT>
    <PARAMS>
     <WWWPARAMS>
-     <RELID>MI</RELID>
-     <OBJID>ZSAPGUI</OBJID>
      <NAME>fileextension</NAME>
      <VALUE>.js</VALUE>
     </WWWPARAMS>
     <WWWPARAMS>
-     <RELID>MI</RELID>
-     <OBJID>ZSAPGUI</OBJID>
      <NAME>filename</NAME>
      <VALUE>sapgui.js</VALUE>
     </WWWPARAMS>
     <WWWPARAMS>
-     <RELID>MI</RELID>
-     <OBJID>ZSAPGUI</OBJID>
      <NAME>mimetype</NAME>
      <VALUE>application/javascript</VALUE>
     </WWWPARAMS>
