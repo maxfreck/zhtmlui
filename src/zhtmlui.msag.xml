@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZHTMLUI</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>HTML UI messages</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZHTMLUI</ARBGB>
+     <MSGNR>000</MSGNR>
+     <TEXT>&amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZHTMLUI</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Invalid mime is specified</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZHTMLUI</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>IE DevTools not supported on frontend OS</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZHTMLUI</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>Failed to run frontend script with exit code &amp;1</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>

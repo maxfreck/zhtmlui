@@ -1,40 +1,46 @@
-CLASS zcl_html_ui DEFINITION PUBLIC CREATE PUBLIC INHERITING FROM cl_gui_html_viewer.
-  PUBLIC SECTION.
+class ZCL_HTML_UI definition
+  public
+  inheriting from CL_GUI_HTML_VIEWER
+  create public .
 
-    CONSTANTS:
-      BEGIN OF cs_loglevel,
+public section.
+
+  types:
+    BEGIN OF mty_s_log_line,
+        stamp TYPE timestampl,
+        level TYPE int1,
+        line  TYPE string,
+      END OF mty_s_log_line .
+  types:
+    mty_t_log_table TYPE STANDARD TABLE OF mty_s_log_line WITH EMPTY KEY .
+
+  constants:
+    BEGIN OF cs_loglevel,
         notice    TYPE int1 VALUE 1,
         warning   TYPE int1 VALUE 2,
         error     TYPE int1 VALUE 3,
         critical  TYPE int1 VALUE 4,
         alert     TYPE int1 VALUE 5,
         emergency TYPE int1 VALUE 6,
-      END OF cs_loglevel.
+      END OF cs_loglevel .
 
-    TYPES:
-      BEGIN OF mty_s_log_line,
-        stamp TYPE timestampl,
-        level TYPE int1,
-        line  TYPE string,
-      END OF mty_s_log_line,
-      mty_t_log_table TYPE STANDARD TABLE OF mty_s_log_line WITH EMPTY KEY.
+  events ON_PAI_CALL
+    exporting
+      value(EV_UCOMM) type SYST_UCOMM .
 
-    METHODS constructor
-      IMPORTING
-        VALUE(io_parent) TYPE REF TO cl_gui_container
-        iv_app           TYPE string
-      EXCEPTIONS
-        cntl_error
-        cntl_install_error
-        dp_install_error
-        dp_error.
-
-    METHODS construct.
-
-    METHODS show.
-
-    EVENTS on_pai_call EXPORTING VALUE(ev_ucomm) TYPE syst_ucomm.
-
+  methods CONSTRUCTOR
+    importing
+      value(IO_PARENT) type ref to CL_GUI_CONTAINER
+      !IV_APP type STRING
+    exceptions
+      CNTL_ERROR
+      CNTL_INSTALL_ERROR
+      DP_INSTALL_ERROR
+      DP_ERROR .
+  methods CONSTRUCT
+    raising
+      ZCX_HTML_UI .
+  methods SHOW .
   PROTECTED SECTION.
     TYPES:
       BEGIN OF mty_s_keyvalue,
@@ -57,13 +63,21 @@ CLASS zcl_html_ui DEFINITION PUBLIC CREATE PUBLIC INHERITING FROM cl_gui_html_vi
       mv_system_dir TYPE string,
       mo_mime_api   TYPE REF TO if_mr_api,
       mv_app        TYPE string,
-      mo_log        TYPE mty_t_log_table.
+      mo_log        TYPE mty_t_log_table,
+      mv_msg        TYPE c.
 
-    METHODS open_devtools.
-    METHODS preload_mime.
+    METHODS open_devtools
+      RAISING
+        zcx_html_ui.
+    METHODS preload_mime
+      RAISING
+        zcx_html_ui.
+
     METHODS preload_repo
       IMPORTING
-        iv_repo TYPE string.
+        iv_repo TYPE string
+      RAISING
+        zcx_html_ui.
 
     METHODS get_translations
       RETURNING
@@ -78,7 +92,9 @@ CLASS zcl_html_ui DEFINITION PUBLIC CREATE PUBLIC INHERITING FROM cl_gui_html_vi
     METHODS handle_sapevent
       IMPORTING
         iv_action TYPE string
-        it_query  TYPE mty_t_query_t.
+        it_query  TYPE mty_t_query_t
+      RAISING
+        zcx_html_ui.
 
     METHODS show_message
       IMPORTING
@@ -90,26 +106,36 @@ CLASS zcl_html_ui DEFINITION PUBLIC CREATE PUBLIC INHERITING FROM cl_gui_html_vi
       IMPORTING
         iv_command TYPE string
         iv_id      TYPE i
-        it_params  TYPE mty_t_query_t.
+        it_params  TYPE mty_t_query_t
+      RAISING
+        zcx_html_ui.
 
     METHODS api_reply
       IMPORTING
         iv_id    TYPE i
-        iv_reply TYPE string.
+        iv_reply TYPE string
+      RAISING
+        zcx_html_ui.
 
     METHODS map_string
       IMPORTING
         iv_name TYPE string
         iv_str  TYPE string
-        iv_mime TYPE string DEFAULT 'text/plain'.
+        iv_mime TYPE string DEFAULT 'text/plain'
+      RAISING
+        zcx_html_ui.
 
     METHODS run_frontend
       IMPORTING
-        iv_script TYPE string.
+        iv_script TYPE string
+      RAISING
+        zcx_html_ui.
 
     METHODS load_binary_data
       IMPORTING
-        iv_like TYPE string.
+        iv_like TYPE string
+      RAISING
+        zcx_html_ui.
 
     METHODS get_mime_object
       IMPORTING
@@ -141,7 +167,9 @@ CLASS zcl_html_ui DEFINITION PUBLIC CREATE PUBLIC INHERITING FROM cl_gui_html_vi
         getdata
         postdata
         sender
-        query_table.
+        query_table
+
+      .
 
     METHODS glue_query
       IMPORTING
@@ -153,7 +181,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_html_ui IMPLEMENTATION.
+CLASS ZCL_HTML_UI IMPLEMENTATION.
 
 
   METHOD api_reply.
@@ -294,8 +322,12 @@ CLASS zcl_html_ui IMPLEMENTATION.
         TRANSLATE getdata TO UPPER CASE.
         RAISE EVENT on_pai_call EXPORTING ev_ucomm = CONV #( getdata ).
       WHEN 'exception'.
-        RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = getdata.
-        RETURN.
+        MESSAGE e000 WITH getdata INTO mv_msg.
+        RAISE EXCEPTION TYPE zcx_html_ui
+          MESSAGE ID sy-msgid
+          TYPE sy-msgty
+          NUMBER sy-msgno
+          WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
       WHEN 'log'. "this is not implemented yet
         IF NOT line_exists( it_query[ key = 'level' ] ) OR NOT line_exists( it_query[ key = 'text' ] ).
           RETURN.
@@ -347,7 +379,11 @@ CLASS zcl_html_ui IMPLEMENTATION.
           OTHERS               = 4.
 
       IF sy-subrc <> 0.
-        RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = |{ <file>-value } load failed with { sy-subrc }|.
+        RAISE EXCEPTION TYPE zcx_html_ui
+          MESSAGE ID sy-msgid
+          TYPE sy-msgty
+          NUMBER sy-msgno
+          WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
@@ -398,7 +434,12 @@ CLASS zcl_html_ui IMPLEMENTATION.
 
     SPLIT iv_mime AT '/' INTO TABLE DATA(mime_tab).
     IF lines( mime_tab ) <> 2.
-      RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = 'Invalid mime is specified'.
+      MESSAGE e001 INTO mv_msg.
+      RAISE EXCEPTION TYPE zcx_html_ui
+        MESSAGE ID sy-msgid
+        TYPE sy-msgty
+        NUMBER sy-msgno
+        WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
     ENDIF.
 
     TRY.
@@ -410,7 +451,7 @@ CLASS zcl_html_ui IMPLEMENTATION.
             ev_size = l_size
         ).
       CATCH cx_bcs INTO DATA(x).
-        RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = x->get_text( ) previous = x.
+        RAISE EXCEPTION TYPE zcx_html_ui EXPORTING previous = x.
     ENDTRY.
 
     CALL METHOD load_data
@@ -431,23 +472,36 @@ CLASS zcl_html_ui IMPLEMENTATION.
         OTHERS                 = 2.
 
     IF sy-subrc <> 0.
-      RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = |load_data failed with { sy-subrc }|.
+      RAISE EXCEPTION TYPE zcx_html_ui
+        MESSAGE ID sy-msgid
+        TYPE sy-msgty
+        NUMBER sy-msgno
+        WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
     ENDIF.
   ENDMETHOD.
 
 
   METHOD on_sapevent.
-    IF lines( query_table ) = 0.
-      handle_sapevent( iv_action = CONV #( action ) it_query = VALUE #( ( key = 'getdata' value = getdata ) ) ).
-    ELSE.
-      handle_sapevent( iv_action = CONV #( action ) it_query = glue_query( query_table ) ).
-    ENDIF.
+    TRY.
+        IF lines( query_table ) = 0.
+          handle_sapevent( iv_action = CONV #( action ) it_query = VALUE #( ( key = 'getdata' value = getdata ) ) ).
+        ELSE.
+          handle_sapevent( iv_action = CONV #( action ) it_query = glue_query( query_table ) ).
+        ENDIF.
+      CATCH zcx_html_ui.
+        "#DO NOTHIGN
+    ENDTRY.
   ENDMETHOD.
 
 
   METHOD open_devtools.
     IF is_gui_for_windows( ) = abap_false.
-      RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = |IE DevTools not supported on frontend OS|.
+      MESSAGE e002 INTO mv_msg.
+      RAISE EXCEPTION TYPE zcx_html_ui
+        MESSAGE ID sy-msgid
+        TYPE sy-msgty
+        NUMBER sy-msgno
+        WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
     ENDIF.
 
     DATA lv_system_directory TYPE string.
@@ -516,7 +570,11 @@ CLASS zcl_html_ui IMPLEMENTATION.
           OTHERS                 = 2 ).
 
       IF sy-subrc <> 0.
-        RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = |load_data failed with { sy-subrc }|.
+        RAISE EXCEPTION TYPE zcx_html_ui
+          MESSAGE ID sy-msgid
+          TYPE sy-msgty
+          NUMBER sy-msgno
+          WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
@@ -527,7 +585,13 @@ CLASS zcl_html_ui IMPLEMENTATION.
     execute_script( EXCEPTIONS dp_error = 1 cntl_error = 2 ).
 
     IF sy-subrc <> 0.
-      RAISE EXCEPTION TYPE zcx_html_ui EXPORTING text = |Failed to run frontend script with exit code { sy-subrc }|.
+      MESSAGE e003 WITH sy-subrc INTO mv_msg.
+      RAISE EXCEPTION TYPE zcx_html_ui
+        MESSAGE ID sy-msgid
+        TYPE sy-msgty
+        NUMBER sy-msgno
+        WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+
     ENDIF.
   ENDMETHOD.
 
