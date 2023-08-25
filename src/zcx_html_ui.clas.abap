@@ -1,57 +1,26 @@
-class zcx_html_ui definition public inheriting from cx_no_check create public.
-  public section.
+CLASS zcx_html_ui DEFINITION PUBLIC INHERITING FROM cx_static_check CREATE PUBLIC.
+  PUBLIC SECTION.
+    INTERFACES if_t100_dyn_msg .
 
-    methods constructor
-      importing
-        previous like previous optional
-        text     type string
-        id       type i default 0.
+    METHODS constructor
+      IMPORTING
+        textid   LIKE if_t100_message=>t100key OPTIONAL
+        previous LIKE previous OPTIONAL.
 
-    methods if_message~get_longtext redefinition.
-    methods if_message~get_text redefinition.
-    methods get_id returning value(ret) type i.
-
-  protected section.
-
-    data:
-      exception_id      type i,
-      exception_message type string.
-
-endclass.
+ENDCLASS.
 
 
 
-class zcx_html_ui implementation.
+CLASS zcx_html_ui IMPLEMENTATION.
 
-  method constructor ##ADT_SUPPRESS_GENERATION.
-    super->constructor( textid = textid previous = previous ).
-    exception_message = text.
-    exception_id = id.
-  endmethod.
+  METHOD constructor ##ADT_SUPPRESS_GENERATION.
+    super->constructor( previous = previous ).
 
+    IF textid IS INITIAL.
+      if_t100_message~t100key = if_t100_message=>default_textid.
+    ELSE.
+      if_t100_message~t100key = textid.
+    ENDIF.
+  ENDMETHOD.
 
-  method if_message~get_longtext.
-    data:
-      program_name type syrepid,
-      include_name type syrepid,
-      source_line  type i.
-
-    get_source_position(
-      importing
-        program_name = program_name
-        include_name = include_name
-        source_line  = source_line
-    ).
-    result = |[{ program_name }] { include_name }:{ source_line } { exception_message }|.
-  endmethod.
-
-
-  method if_message~get_text.
-    result = exception_message.
-  endmethod.
-
-  method get_id.
-    ret = exception_id.
-  endmethod.
-
-endclass.
+ENDCLASS.
